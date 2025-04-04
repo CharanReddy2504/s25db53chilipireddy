@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h2 Grid Display
+
+  // Show what was passed
+  p Rows: #{query.rows}, Cols: #{query.cols}
+
+  - var rows = Number(query.rows)
+  - var cols = Number(query.cols)
+
+  if (!Number.isInteger(rows) || !Number.isInteger(cols))
+    p Please enter valid integers for rows and columns.
+
+  else if (rows < 3 || rows > 13)
+    p Rows must be between 3 and 13.
+
+  else if (cols < 3 || cols > 13)
+    p Columns must be between 3 and 13.
+
+  else
+    table#outer.table.table-bordered.mt-3
+      - for (let i = 0; i < rows; i++) {
+        tr#middle
+          - for (let j = 0; j < cols; j++) {
+            td= i - j
+          - }
+      - }
+
+  

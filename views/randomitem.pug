@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h2 A Random Crystals
+
+  - var image_names = ["amethyst.jpg", "citrine.jpg", "malachite.jpg", "opal.jpg", "quartz.jpg"]
+
+  - for (let i = 0; i < 3; i++) {
+    - let rand = Math.floor(Math.random() * 5)
+    - let name = image_names[rand]
+    img(src=`/images/${name}`, alt=`${name}`, height="300", width="300", class="m-2 border rounded")
+  - }
+

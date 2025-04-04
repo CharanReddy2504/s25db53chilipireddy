@@ -1,0 +1,18 @@
+extends layout.pug
+
+block content
+  h2 Welcome to My Express App
+
+  button(type="button", class="btn btn-primary", onclick="faster()") Press Me!
+  div#faster.mt-3 Add in extra
+
+  script.
+    let value = 1;
+    let amt = 2;
+
+    function faster() {
+      amt *= 2;
+      value += amt;
+      document.getElementById("faster").textContent = `Faster ${value} times ${amt}`;
+    }
+
