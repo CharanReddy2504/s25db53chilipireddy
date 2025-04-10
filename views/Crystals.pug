@@ -3,12 +3,16 @@ extends layout.pug
 block content
   h1.text-center.mt-4 Search Results for Crystals
 
-  - var results = [{ name: "Amethyst", hardness: 7, color: "Purple" },{ name: "Quartz", hardness: 7, color: "Clear" },{ name: "Malachite", hardness: 3.5, color: "Green" }];
+  - var results = [
+  -   { name: "Amethyst", hardness: 7, color: "Purple" },
+  -   { name: "Quartz", hardness: 7, color: "Clear" },
+  -   { name: "Malachite", hardness: 3.5, color: "Green" }
+  - ];
 
   .container-fluid
     .row
       each crystal, i in results
-        .col-sm-2(onclick=`buy(${i})`, style='cursor: pointer; border: 1px solid #ccc; padding: 10px; margin: 5px;')
+        .col-sm-2(style='cursor: pointer; border: 1px solid #ccc; padding: 10px; margin: 5px;', onclick="buy(#{i})")
           p Name: #{crystal.name}
           p Hardness: #{crystal.hardness}
           p Color: #{crystal.color}
@@ -17,7 +21,5 @@ block content
     function buy(index) {
       alert("You purchased item " + index);
     }
-
-
 
 
