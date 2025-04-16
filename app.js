@@ -13,6 +13,9 @@ var usersRouter = require('./routes/users');
 var resourceRouter = require('./routes/resource');
 var gridRouter = require('./routes/grid');
 var pickRouter = require('./routes/pick');
+var crystalRouter = require('./routes/crystal'); 
+
+
 
 // Initialize Express app
 var app = express();
