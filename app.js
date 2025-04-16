@@ -43,7 +43,7 @@ app.use('/users', usersRouter);
 app.use('/resource', resourceRouter);
 app.use('/grid', gridRouter);
 app.use('/selector', pickRouter);
-app.use('/crystals', crystalRouter);
+app.use('/crystal', crystalRouter);
 
 // 404 error handler
 app.use(function(req, res, next) {

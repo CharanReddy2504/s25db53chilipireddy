@@ -9,13 +9,13 @@ async function recreateDB() {
         await Crystal.deleteMany();
         console.info('Existing records cleared');
 
-        const crystals = [
+        const crystal = [
             { name: 'Amethyst', hardness: 7, color: 'Purple' },
             { name: 'Quartz', hardness: 7, color: 'Clear' },
             { name: 'Malachite', hardness: 3.5, color: 'Green' }
         ];
 
-        await Crystal.insertMany(crystals);
+        await Crystal.insertMany(crystal);
         console.info('Seed data inserted successfully!');
     } catch (err) {
         console.error('Error seeding data:', err);
@@ -35,10 +35,10 @@ if (reseed) {
 // GET all Crystals
 exports.crystal_list = async (req, res) => {
     try {
-        const crystals = await Crystal.find({});
-        res.status(200).json(crystals);
+        const crystal = await Crystal.find({});
+        res.status(200).json(crystal);
     } catch (err) {
-        res.status(500).send({ message: 'Failed to retrieve crystals', error: err.message });
+        res.status(500).send({ message: 'Failed to retrieve crystal', error: err.message });
     }
 };
 
