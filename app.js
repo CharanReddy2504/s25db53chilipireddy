@@ -5,21 +5,16 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 require('dotenv').config();
-
-// Import createError from http-errors
 var createError = require('http-errors');
 
 // Import route handlers
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var resourceRouter = require('./routes/resource');  // Add resource route for your API
+var resourceRouter = require('./routes/resource');
 var gridRouter = require('./routes/grid');
 var pickRouter = require('./routes/pick');
 
-// Import controller for crystals
-var crystal_controller = require('./controllers/crystal');  // Import the controller
-
-// Initialize the Express app
+// Initialize Express app
 var app = express();
 
 // MongoDB connection
@@ -28,7 +23,7 @@ mongoose.connect(connectionString)
     .then(() => console.log("Connected to MongoDB Atlas"))
     .catch((err) => console.error("MongoDB connection error:", err));
 
-// Set up view engine
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -39,20 +34,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Define routes
+// Route setup
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/resource', resourceRouter);  // Ensure this route is correctly registered
-
+app.use('/resource', resourceRouter);
 app.use('/grid', gridRouter);
 app.use('/selector', pickRouter);
+app.use('/crystals', crystalRouter);
 
-// Error handling for 404
+// 404 error handler
 app.use(function(req, res, next) {
-  next(createError(404, 'Not Found'));  // Create and pass the 404 error to the error handler
+  next(createError(404, 'Not Found'));
 });
 
-// Error handler
+// General error handler
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -60,6 +55,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-// Export the app for use in other files (e.g., in a server setup file)
 module.exports = app;
-

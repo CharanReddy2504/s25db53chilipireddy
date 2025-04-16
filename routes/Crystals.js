@@ -1,23 +1,26 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-// Import the controller for crystal
-var crystal_controller = require('../controllers/crystal');
+// Import the Crystal controller
+const crystalController = require('../controllers/crystalController');
 
-// CRUD operations for Crystal
-// GET request for list of all crystals
-router.get('/crystals', crystal_controller.crystal_list); 
+// ===================================
+//           CRYSTAL ROUTES
+// ===================================
 
-// GET request for a specific crystal by ID
-router.get('/crystals/:id', crystal_controller.crystal_detail);
+// GET all crystals
+router.get('/', crystalController.crystal_list);
 
-// POST request to create a new crystal
-router.post('/crystals', crystal_controller.crystal_create_post);
+// GET crystal by ID
+router.get('/:id', crystalController.crystal_detail);
 
-// PUT request to update a crystal
-router.put('/crystals/:id', crystal_controller.crystal_update_put);
+// POST create a new crystal
+router.post('/', crystalController.crystal_create_post);
 
-// DELETE request to delete a crystal
-router.delete('/crystals/:id', crystal_controller.crystal_delete);
+// PUT update a crystal by ID
+router.put('/:id', crystalController.crystal_update_put);
+
+// DELETE a crystal by ID
+router.delete('/:id', crystalController.crystal_delete);
 
 module.exports = router;
