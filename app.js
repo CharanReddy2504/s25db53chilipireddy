@@ -1,57 +1,80 @@
-// Import necessary modules
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
+// =======================================
+//         Module Imports
+// =======================================
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const createError = require('http-errors');
 require('dotenv').config();
-var createError = require('http-errors');
 
-// Import route handlers
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var resourceRouter = require('./routes/resource');
-var gridRouter = require('./routes/grid');
-var pickRouter = require('./routes/pick');
-var crystalRouter = require('./routes/crystal'); 
+// =======================================
+//         Initialize Express App
+// =======================================
+const app = express();
 
-
-
-// Initialize Express app
-var app = express();
-
-// MongoDB connection
+// =======================================
+//         Database Connection
+// =======================================
 const connectionString = process.env.MONGO_CON;
-mongoose.connect(connectionString)
-    .then(() => console.log("Connected to MongoDB Atlas"))
-    .catch((err) => console.error("MongoDB connection error:", err));
 
-// View engine setup
+mongoose.connect(connectionString, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// =======================================
+//         View Engine Setup
+// =======================================
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// Middleware
+// =======================================
+//         Middleware
+// =======================================
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route setup
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/resource', resourceRouter);
-app.use('/grid', gridRouter);
-app.use('/selector', pickRouter);
-app.use('/crystal', crystalRouter);
+// =======================================
+//         Route Handlers
+// =======================================
+try {
+  const indexRouter = require('./routes/index');
+  const usersRouter = require('./routes/users');
+  const resourceRouter = require('./routes/resource');
+  const gridRouter = require('./routes/grid');
+  const pickRouter = require('./routes/pick');
+  const crystalRouter = require('./routes/crystal');
 
-// 404 error handler
-app.use(function(req, res, next) {
-  next(createError(404, 'Not Found'));
+  app.use('/', indexRouter);
+  app.use('/users', usersRouter);
+  app.use('/resource', resourceRouter);
+  app.use('/grid', gridRouter);
+  app.use('/selector', pickRouter);
+  app.use('/crystal', crystalRouter); // ✅ This must be a router, not an object
+
+} catch (err) {
+  console.error('❌ Error loading one of the routers:', err.message);
+}
+
+// =======================================
+//         404 Handler
+// =======================================
+app.use((req, res, next) => {
+  console.warn('⚠️ 404 Not Found:', req.method, req.url);
+  next(createError(404));
 });
 
-// General error handler
-app.use(function(err, req, res, next) {
+// =======================================
+//         Error Handler
+// =======================================
+app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);

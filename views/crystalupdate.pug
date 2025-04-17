@@ -1,0 +1,56 @@
+extends layout
+
+block content
+  h1= title
+
+  - const crystalId = toShow._id
+
+  div.mb-3
+    strong ID: 
+    span= crystalId
+
+  form(id='CrystalUpdateForm', action=`/crystal/${crystalId}`, method="POST")
+    input(type="hidden", name="_method", value="PUT")
+
+    .mb-3
+      label.form-label(for="name") Name:
+      input.form-control(type="text", id="name", name="name", value=toShow.name required)
+
+    .mb-3
+      label.form-label(for="hardness") Hardness:
+      input.form-control(type="number", id="hardness", name="hardness", step="0.1", value=toShow.hardness required)
+
+    .mb-3
+      label.form-label(for="color") Color:
+      input.form-control(type="text", id="color", name="color", value=toShow.color required)
+
+    button.btn.btn-success(type="submit") Update Crystal
+
+  script.
+    document.getElementById('CrystalUpdateForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const id = "#{crystalId}";
+      const formData = {
+        name: form.name.value,
+        hardness: parseFloat(form.hardness.value),
+        color: form.color.value
+      };
+
+      try {
+        const response = await fetch(`/crystal/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          alert("✅ Update succeeded");
+        } else {
+          const error = await response.json();
+          alert("❌ Update failed: " + error.message);
+        }
+      } catch (err) {
+        alert("❌ Request failed: " + err.message);
+      }
+    });

@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1= title
+
+  - let crystalId = toShow._id
+  - let name = toShow.name
+  - let hardness = toShow.hardness
+  - let color = toShow.color
+
+  div
+    div.row
+      div(class='crystalAttr') Crystal ID:
+      div #{crystalId}
+    div.row
+      div(class='crystalAttr') Name:
+      div #{name}
+    div.row
+      div(class='crystalAttr') Hardness:
+      div #{hardness}
+    div.row
+      div(class='crystalAttr') Color:
+      div #{color}

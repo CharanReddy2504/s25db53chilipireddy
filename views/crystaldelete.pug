@@ -1,0 +1,44 @@
+extends layout
+
+block content
+  h1= title
+
+  - if (!toShow)
+    p.text-danger Crystal not found.
+  - else
+    div.mb-3
+      strong Name:
+      span= toShow.name
+
+    div.mb-3
+      strong Hardness:
+      span= toShow.hardness
+
+    div.mb-3
+      strong Color:
+      span= toShow.color
+
+    p.text-danger Are you sure you want to delete this crystal?
+
+    form(id="deleteForm" data-id=toShow._id)
+      button.btn.btn-danger(type="submit") Delete
+
+    script.
+      document.getElementById('deleteForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const crystalId = this.dataset.id;
+        try {
+          const res = await fetch(`/crystal/${crystalId}`, {
+            method: 'DELETE'
+          });
+          if (res.ok) {
+            alert('✅ Crystal deleted!');
+            window.location.href = '/crystal'; // or your list page
+          } else {
+            const data = await res.json();
+            alert('❌ Delete failed: ' + data.message);
+          }
+        } catch (err) {
+          alert('❌ Error: ' + err.message);
+        }
+      });
