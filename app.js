@@ -9,6 +9,11 @@ const mongoose = require('mongoose');
 const createError = require('http-errors');
 require('dotenv').config();
 
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+const Account = require('./models/account');
+
 // =======================================
 //         Initialize Express App
 // =======================================
@@ -26,7 +31,7 @@ mongoose.connect(connectionString, {
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch(err => {
   console.error('❌ MongoDB connection error:', err);
-  process.exit(1); // Exit if DB connection fails
+  process.exit(1);
 });
 
 // =======================================
@@ -42,7 +47,23 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+// =======================================
+//         Passport Configuration
+// =======================================
+passport.use(new LocalStrategy(Account.authenticate()));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
 
 // =======================================
 //         Route Handlers
@@ -59,7 +80,14 @@ app.use('/users', usersRouter);
 app.use('/resource', resourceRouter);
 app.use('/grid', gridRouter);
 app.use('/selector', pickRouter);
-app.use('/crystal', crystalRouter); // ✅ Crystal routes
+app.use('/crystal', (req, res, next) => {
+  if (req.path === '/') {
+    // redirect to view instead of API
+    res.redirect('/crystal/view/all');
+  } else {
+    next();
+  }
+}, crystalRouter);
 
 // =======================================
 //         404 Handler
@@ -76,7 +104,7 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);
-  res.render('error'); // Make sure you have views/error.pug
+  res.render('error');
 });
 
 module.exports = app;

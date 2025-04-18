@@ -1,107 +1,48 @@
-// =======================================
-//         app.js
-// =======================================
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const mongoose = require('mongoose');
-const createError = require('http-errors');
-require('dotenv').config();
-
-const app = express();
-
-const connectionString = process.env.MONGO_CON;
-
-mongoose.connect(connectionString)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-const crystalRouter = require('./routes/crystal');
-app.use('/crystal', crystalRouter);
-
-app.use((req, res, next) => {
-  next(createError(404));
-});
-
-app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
-
-
-// =======================================
-//         routes/crystal.js
-// =======================================
-const express = require('express');
-const router = express.Router();
-const crystalController = require('../controllers/crystal');
-
-router.get('/view/all', crystalController.crystal_view_all_Page);
-router.get('/view/detail', crystalController.crystal_view_one_Page);
-router.get('/view/create', crystalController.crystal_create_Page);
-router.get('/view/update', crystalController.crystal_update_Page);
-router.get('/view/delete', crystalController.crystal_delete_Page);
-
-router.get('/', crystalController.crystal_list);
-router.get('/:id', crystalController.crystal_detail);
-router.post('/', crystalController.crystal_create_post);
-router.put('/:id', crystalController.crystal_update_put);
-router.delete('/:id', crystalController.crystal_delete);
-
-module.exports = router;
-
-
-// =======================================
-//         views/crystal.pug
-// =======================================
 extends layout
 
 block content
-  h1= title
+  h1.text-center.mt-4.mb-4= title
 
-  a.btn.btn-primary.mb-3(href='/crystal/view/create') ➕ Create New Crystal
+  a.btn.btn-primary.mb-4(href='/crystal/view/create') ➕ Create New Crystal
 
   - if (!crystals || crystals.length === 0)
-    p.text-muted No crystals found.
+    p.text-muted.text-center No crystals found.
   - else
-    table.table.table-bordered
+    table.table.table-bordered.table-striped
       thead
         tr
           th Name
           th Hardness
           th Color
-          th Actions
+          th.text-center Actions
       tbody
         each crystal in crystals
           tr
             td= crystal.name
             td= crystal.hardness
             td= crystal.color
-            td
+            td.text-center
               a.btn.btn-sm.btn-info(href=`/crystal/view/detail?id=${crystal._id}`) View
-              a.btn.btn-sm.btn-warning(href=`/crystal/view/update?id=${crystal._id}`) Edit
-              button.btn.btn-sm.btn-danger(data-id=crystal._id onclick='deleteCrystal(this)') Delete
+              a.btn.btn-sm.btn-warning.ms-1(href=`/crystal/view/update?id=${crystal._id}`) UPDATE
+              button.btn.btn-sm.btn-danger.ms-1(data-id=crystal._id onclick="deleteCrystal(this)") Delete
 
   script.
-    async function deleteCrystal(btn) {
-      const id = btn.dataset.id;
-      if (confirm('Delete this crystal?')) {
-        const res = await fetch(`/crystal/${id}`, { method: 'DELETE' });
-        if (res.ok) window.location.reload();
-        else alert('Delete failed');
+    async function deleteCrystal(button) {
+      const id = button.getAttribute('data-id');
+      if (confirm('Are you sure you want to delete this crystal?')) {
+        try {
+          const res = await fetch(`/crystal/${id}`, {
+            method: 'DELETE'
+          });
+          if (res.ok) {
+            alert('✅ Deleted!');
+            window.location.reload();
+          } else {
+            const err = await res.json();
+            alert('❌ Delete failed: ' + err.message);
+          }
+        } catch (err) {
+          alert('❌ Error: ' + err.message);
+        }
       }
     }
