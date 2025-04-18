@@ -107,12 +107,21 @@ exports.crystal_delete = async (req, res) => {
 // List page
 exports.crystal_view_all_Page = async (req, res) => {
     try {
-        const crystals = await Crystal.find();
-        res.render('crystal_list', { title: 'Crystal List', crystals });
+      const crystals = await Crystal.find();
+      console.log("✅ Crystals fetched:", crystals); // Debug output
+  
+      // Make sure crystals is always an array
+      res.render('crystal', { title: 'Crystal Collection', crystals: crystals || [] });
     } catch (err) {
-        res.status(500).send({ message: 'Error rendering crystal list', error: err });
+      console.error("❌ Error rendering crystal list:", err); // Log full error
+      res.status(500).send({
+        message: 'Error rendering crystal list',
+        error: err.message
+      });
     }
-};
+  };
+  
+  
 
 // Detail view
 exports.crystal_view_one_Page = async (req, res) => {

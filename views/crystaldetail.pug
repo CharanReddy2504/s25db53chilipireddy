@@ -1,23 +1,44 @@
 extends layout
 
 block content
-  h1= title
+  h1.text-center.mt-4.text-primary= title
 
-  - let crystalId = toShow._id
-  - let name = toShow.name
-  - let hardness = toShow.hardness
-  - let color = toShow.color
+  if !toShow
+    .alert.alert-danger.text-center.mt-5
+      h4 🚫 No Crystal instance found with this ID
+      a.btn.btn-outline-secondary.mt-3(href='/crystals') ← Back to Crystal List
+  else
+    - const crystalId = toShow._id
+    - const name = toShow.name
+    - const hardness = toShow.hardness
+    - const color = toShow.color
 
-  div
-    div.row
-      div(class='crystalAttr') Crystal ID:
-      div #{crystalId}
-    div.row
-      div(class='crystalAttr') Name:
-      div #{name}
-    div.row
-      div(class='crystalAttr') Hardness:
-      div #{hardness}
-    div.row
-      div(class='crystalAttr') Color:
-      div #{color}
+    .container.mt-5
+      .card.shadow
+        .card-header.bg-primary.text-white.text-center
+          h4.mb-0 Crystal Details
+
+        .card-body
+          .row.mb-3
+            .col-md-4.text-right.font-weight-bold Crystal ID:
+            .col-md-8.d-flex.justify-content-between.align-items-center
+              span= crystalId
+              button.btn.btn-sm.btn-outline-light.ml-2(title='Copy ID', onclick=`navigator.clipboard.writeText("${crystalId}")`) 📋
+
+          .row.mb-3
+            .col-md-4.text-right.font-weight-bold Name:
+            .col-md-8= name
+
+          .row.mb-3
+            .col-md-4.text-right.font-weight-bold Hardness:
+            .col-md-8= hardness
+
+          .row.mb-3
+            .col-md-4.text-right.font-weight-bold Color:
+            .col-md-8
+              span.badge.badge-pill(style=`background-color: ${color}; color: white; padding: 6px 12px`) #{color}
+
+        .card-footer.text-center
+          a.btn.btn-secondary.mr-3(href='/crystals') ← Back
+          a.btn.btn-warning(href=`/crystal/update?id=${crystalId}`) ✏️ Update Crystal
+

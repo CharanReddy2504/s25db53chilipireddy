@@ -24,7 +24,10 @@ mongoose.connect(connectionString, {
   useUnifiedTopology: true
 })
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
-.catch((err) => console.error('❌ MongoDB connection error:', err));
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  process.exit(1); // Exit if DB connection fails
+});
 
 // =======================================
 //         View Engine Setup
@@ -44,24 +47,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 // =======================================
 //         Route Handlers
 // =======================================
-try {
-  const indexRouter = require('./routes/index');
-  const usersRouter = require('./routes/users');
-  const resourceRouter = require('./routes/resource');
-  const gridRouter = require('./routes/grid');
-  const pickRouter = require('./routes/pick');
-  const crystalRouter = require('./routes/crystal');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const resourceRouter = require('./routes/resource');
+const gridRouter = require('./routes/grid');
+const pickRouter = require('./routes/pick');
+const crystalRouter = require('./routes/crystal');
 
-  app.use('/', indexRouter);
-  app.use('/users', usersRouter);
-  app.use('/resource', resourceRouter);
-  app.use('/grid', gridRouter);
-  app.use('/selector', pickRouter);
-  app.use('/crystal', crystalRouter); // ✅ This must be a router, not an object
-
-} catch (err) {
-  console.error('❌ Error loading one of the routers:', err.message);
-}
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/resource', resourceRouter);
+app.use('/grid', gridRouter);
+app.use('/selector', pickRouter);
+app.use('/crystal', crystalRouter); // ✅ Crystal routes
 
 // =======================================
 //         404 Handler
@@ -72,13 +70,13 @@ app.use((req, res, next) => {
 });
 
 // =======================================
-//         Error Handler
+//         Global Error Handler
 // =======================================
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error'); // Make sure you have views/error.pug
 });
 
 module.exports = app;

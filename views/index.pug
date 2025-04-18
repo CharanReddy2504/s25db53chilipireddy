@@ -1,18 +1,26 @@
-extends layout.pug
+extends layout
 
 block content
-  h2 Welcome to My Express App
+  .text-center.mt-4
+    h1.text-primary= title
+    p.lead.mt-2= message
 
-  button(type="button", class="btn btn-primary", onclick="faster()") Press Me!
-  div#faster.mt-3 Add in extra
-
-  script.
-    let value = 1;
-    let amt = 2;
-
-    function faster() {
-      amt *= 2;
-      value += amt;
-      document.getElementById("faster").textContent = `Faster ${value} times ${amt}`;
-    }
-
+  if crystals.length
+    .container.mt-4
+      .row
+        each crystal in crystals
+          .col-md-4.mb-4
+            .card.shadow-sm
+              .card-header.bg-info.text-white.text-center
+                h5= crystal.name
+              .card-body
+                p.mb-1
+                  strong Hardness:
+                  |  #{crystal.hardness}
+                p.mb-1
+                  strong Color:
+                  span.badge.badge-pill.ml-2(style=`background-color: ${crystal.color}; color: white`) #{crystal.color}
+              .card-footer.text-center
+                a.btn.btn-sm.btn-primary(href=`/crystal/${crystal._id}`) View Details
+  else
+    .alert.alert-warning.text-center.mt-4 No crystals found in the collection.

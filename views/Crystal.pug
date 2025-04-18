@@ -1,25 +1,107 @@
-extends layout.pug
+// =======================================
+//         app.js
+// =======================================
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const createError = require('http-errors');
+require('dotenv').config();
+
+const app = express();
+
+const connectionString = process.env.MONGO_CON;
+
+mongoose.connect(connectionString)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const crystalRouter = require('./routes/crystal');
+app.use('/crystal', crystalRouter);
+
+app.use((req, res, next) => {
+  next(createError(404));
+});
+
+app.use((err, req, res, next) => {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
+
+
+// =======================================
+//         routes/crystal.js
+// =======================================
+const express = require('express');
+const router = express.Router();
+const crystalController = require('../controllers/crystal');
+
+router.get('/view/all', crystalController.crystal_view_all_Page);
+router.get('/view/detail', crystalController.crystal_view_one_Page);
+router.get('/view/create', crystalController.crystal_create_Page);
+router.get('/view/update', crystalController.crystal_update_Page);
+router.get('/view/delete', crystalController.crystal_delete_Page);
+
+router.get('/', crystalController.crystal_list);
+router.get('/:id', crystalController.crystal_detail);
+router.post('/', crystalController.crystal_create_post);
+router.put('/:id', crystalController.crystal_update_put);
+router.delete('/:id', crystalController.crystal_delete);
+
+module.exports = router;
+
+
+// =======================================
+//         views/crystal.pug
+// =======================================
+extends layout
 
 block content
-  h1.text-center.mt-4 Search Results for Crystal
+  h1= title
 
-  - var results = [
-  -   { name: "Amethyst", hardness: 7, color: "Purple" },
-  -   { name: "Quartz", hardness: 7, color: "Clear" },
-  -   { name: "Malachite", hardness: 3.5, color: "Green" }
-  - ];
+  a.btn.btn-primary.mb-3(href='/crystal/view/create') ➕ Create New Crystal
 
-  .container-fluid
-    .row
-      each crystal, i in results
-        .col-sm-2(style='cursor: pointer; border: 1px solid #ccc; padding: 10px; margin: 5px;', onclick="buy(#{i})")
-          p Name: #{crystal.name}
-          p Hardness: #{crystal.hardness}
-          p Color: #{crystal.color}
+  - if (!crystals || crystals.length === 0)
+    p.text-muted No crystals found.
+  - else
+    table.table.table-bordered
+      thead
+        tr
+          th Name
+          th Hardness
+          th Color
+          th Actions
+      tbody
+        each crystal in crystals
+          tr
+            td= crystal.name
+            td= crystal.hardness
+            td= crystal.color
+            td
+              a.btn.btn-sm.btn-info(href=`/crystal/view/detail?id=${crystal._id}`) View
+              a.btn.btn-sm.btn-warning(href=`/crystal/view/update?id=${crystal._id}`) Edit
+              button.btn.btn-sm.btn-danger(data-id=crystal._id onclick='deleteCrystal(this)') Delete
 
   script.
-    function buy(index) {
-      alert("You purchased item " + index);
+    async function deleteCrystal(btn) {
+      const id = btn.dataset.id;
+      if (confirm('Delete this crystal?')) {
+        const res = await fetch(`/crystal/${id}`, { method: 'DELETE' });
+        if (res.ok) window.location.reload();
+        else alert('Delete failed');
+      }
     }
-
-
