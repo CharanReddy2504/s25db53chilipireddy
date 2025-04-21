@@ -6,7 +6,7 @@ const Crystal = require('../models/crystal');
 async function recreateDB() {
     try {
         await Crystal.deleteMany();
-        console.info('✅ Existing records cleared');
+        console.info('Existing records cleared');
 
         const crystalData = [
             { name: 'Amethyst', hardness: 7, color: 'Purple' },
@@ -15,19 +15,18 @@ async function recreateDB() {
         ];
 
         await Crystal.insertMany(crystalData);
-        console.info('✅ Seed data inserted successfully!');
+        console.info('Seed data inserted successfully');
     } catch (err) {
-        console.error('❌ Error seeding data:', err);
+        console.error('Error seeding data:', err);
     }
 }
-// Toggle manually during development
-// if (true) recreateDB();
+// Uncomment the line below to reseed the database manually
+// recreateDB();
 
 // =======================================
 //         JSON API CONTROLLERS
 // =======================================
 
-// GET all Crystals
 exports.crystal_list = async (req, res) => {
     try {
         const crystals = await Crystal.find({});
@@ -37,7 +36,6 @@ exports.crystal_list = async (req, res) => {
     }
 };
 
-// GET one Crystal
 exports.crystal_detail = async (req, res) => {
     try {
         const crystal = await Crystal.findById(req.params.id);
@@ -50,7 +48,6 @@ exports.crystal_detail = async (req, res) => {
     }
 };
 
-// POST create a Crystal
 exports.crystal_create_post = async (req, res) => {
     try {
         const { name, hardness, color } = req.body;
@@ -65,7 +62,6 @@ exports.crystal_create_post = async (req, res) => {
     }
 };
 
-// PUT update Crystal
 exports.crystal_update_put = async (req, res) => {
     const { name, hardness, color } = req.body;
     if (!name || hardness == null || !color) {
@@ -87,7 +83,6 @@ exports.crystal_update_put = async (req, res) => {
     }
 };
 
-// ✅ DELETE Crystal (API controller)
 exports.crystal_delete = async (req, res) => {
     try {
         const result = await Crystal.findByIdAndDelete(req.params.id);
@@ -104,69 +99,52 @@ exports.crystal_delete = async (req, res) => {
 //         PAGE VIEW CONTROLLERS
 // =======================================
 
-// List page
 exports.crystal_view_all_Page = async (req, res) => {
     try {
-      const crystals = await Crystal.find();
-      console.log("✅ Crystals fetched:", crystals); // Debug output
-  
-      // Make sure crystals is always an array
-      res.render('crystal', { title: 'Crystal Collection', crystals: crystals || [] });
+        const crystals = await Crystal.find();
+        res.render('crystal', { title: 'Crystal Collection', crystals: crystals || [] });
     } catch (err) {
-      console.error("❌ Error rendering crystal list:", err); // Log full error
-      res.status(500).send({
-        message: 'Error rendering crystal list',
-        error: err.message
-      });
+        res.status(500).send({ message: 'Error rendering crystal list', error: err.message });
     }
-  };
-  
-  
+};
 
-// Detail view
 exports.crystal_view_one_Page = async (req, res) => {
-    console.log("Single view for crystal id " + req.query.id);
     try {
         const result = await Crystal.findById(req.query.id);
         if (!result) return res.status(404).send("Crystal not found");
-        res.render('crystaldetail', {
-            title: 'Crystal Detail',
-            toShow: result
-        });
+        res.render('crystaldetail', { title: 'Crystal Detail', toShow: result });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        res.status(500).send({ message: 'Error loading crystal detail', error: err.message });
     }
 };
 
-// Create form view
 exports.crystal_create_Page = function (req, res) {
-    console.log("Create crystal view");
     try {
         res.render('crystalcreate', { title: 'Create Crystal' });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        res.status(500).send({ message: 'Error loading create page', error: err.message });
     }
 };
 
-// Update form view
 exports.crystal_update_Page = async function (req, res) {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
     try {
         const result = await Crystal.findById(req.query.id);
         if (!result) return res.status(404).send("Crystal not found");
         res.render('crystalupdate', { title: 'Update Crystal', toShow: result });
     } catch (err) {
-        res.status(500).send({ message: 'Error loading update page', error: err });
+        res.status(500).send({ message: 'Error loading update page', error: err.message });
     }
 };
 
-// Delete confirmation view
 exports.crystal_delete_Page = async function (req, res) {
-    console.log("Delete view for crystal id " + req.query.id);
     try {
         const result = await Crystal.findById(req.query.id);
         if (!result) return res.status(404).send("Crystal not found");
         res.render('crystaldelete', { title: 'Delete Crystal', toShow: result });
     } catch (err) {
-        res.status(500).send({ message: 'Error loading delete page', error: err });
+        res.status(500).send({ message: 'Error loading delete page', error: err.message });
     }
 };

@@ -1,44 +1,22 @@
 extends layout
 
 block content
-  h1.text-center.mt-4.text-primary= title
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-6
+        .card.shadow
+          .card-header.bg-info.text-white.text-center
+            h5.mb-0= toShow.name
 
-  if !toShow
-    .alert.alert-danger.text-center.mt-5
-      h4 🚫 No Crystal instance found with this ID
-      a.btn.btn-outline-secondary.mt-3(href='/crystals') ← Back to Crystal List
-  else
-    - const crystalId = toShow._id
-    - const name = toShow.name
-    - const hardness = toShow.hardness
-    - const color = toShow.color
+          .card-body
+            p.mb-2
+              strong Hardness:
+              |  #{toShow.hardness}
 
-    .container.mt-5
-      .card.shadow
-        .card-header.bg-primary.text-white.text-center
-          h4.mb-0 Crystal Details
+            p.mb-2
+              strong Color:
+              span.badge.ml-2(style=`background-color: ${toShow.color}; color: white; padding: 6px 10px`) #{toShow.color}
 
-        .card-body
-          .row.mb-3
-            .col-md-4.text-right.font-weight-bold Crystal ID:
-            .col-md-8.d-flex.justify-content-between.align-items-center
-              span= crystalId
-              button.btn.btn-sm.btn-outline-light.ml-2(title='Copy ID', onclick=`navigator.clipboard.writeText("${crystalId}")`) 📋
-
-          .row.mb-3
-            .col-md-4.text-right.font-weight-bold Name:
-            .col-md-8= name
-
-          .row.mb-3
-            .col-md-4.text-right.font-weight-bold Hardness:
-            .col-md-8= hardness
-
-          .row.mb-3
-            .col-md-4.text-right.font-weight-bold Color:
-            .col-md-8
-              span.badge.badge-pill(style=`background-color: ${color}; color: white; padding: 6px 12px`) #{color}
-
-        .card-footer.text-center
-          a.btn.btn-secondary.mr-3(href='/crystals') ← Back
-          a.btn.btn-warning(href=`/crystal/update?id=${crystalId}`) ✏️ Update Crystal
-
+          .card-footer.text-center
+            a.btn.btn-secondary.mr-2(href='/crystal/view/all') Back
+            a.btn.btn-warning(href=`/crystal/view/update?id=${toShow._id}`) Update Crystal
